@@ -36,7 +36,8 @@ class BlockingActivity : Activity() {
     }
 
     private fun updateStatus() {
-        val status = AnkiChecker.getSpanishDeckStatus(this)
+        val selectedDecks = Prefs.getSelectedDecks(this)
+        val status = AnkiChecker.getMultiDeckStatus(this, selectedDecks)
         val statusText = findViewById<TextView>(R.id.tvStatus)
 
         if (status.isComplete) {
@@ -45,7 +46,7 @@ class BlockingActivity : Activity() {
         }
 
         if (!status.found) {
-            statusText.text = "Could not read Anki deck.\nOpen AnkiDroid first, then try again."
+            statusText.text = "Could not read Anki decks.\nOpen AnkiDroid first, then try again."
         } else {
             statusText.text = "You have ${status.totalDue} cards due\n" +
                 "(${status.newCount} new, ${status.reviewCount} review, ${status.learnCount} learning)"

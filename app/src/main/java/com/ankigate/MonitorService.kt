@@ -24,11 +24,9 @@ class MonitorService : Service() {
         const val NOTIFICATION_ID = 1
         private const val POLL_INTERVAL_MS = 1000L
 
-        val BLOCKED_PACKAGES = setOf(
-            "com.instagram.android",
-            "com.google.android.youtube",
-            "com.twitter.android",
-        )
+        @Volatile
+        var isRunning = false
+            private set
 
         fun start(context: Context) {
             val intent = Intent(context, MonitorService::class.java)
@@ -93,12 +91,14 @@ class MonitorService : Service() {
             addAction("com.ankigate.TEST_OFF")
         }
         registerReceiver(testReceiver, filter, Context.RECEIVER_EXPORTED)
+        isRunning = true
         Log.e(TAG, "MonitorService onCreate")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         handler.removeCallbacks(pollRunnable)
         handler.post(pollRunnable)
+        isRunning = true
         Log.e(TAG, "MonitorService onStartCommand — polling started")
         return START_STICKY
     }
@@ -106,6 +106,7 @@ class MonitorService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
+        isRunning = false
         handler.removeCallbacks(pollRunnable)
         unregisterReceiver(testReceiver)
         Log.e(TAG, "MonitorService destroyed")
@@ -126,7 +127,8 @@ class MonitorService : Service() {
             refreshDeckStatus()
         }
 
-        if (foreground != null && foreground in BLOCKED_PACKAGES) {
+        val blockedPackages = Prefs.getBlockedPackages(this)
+        if (foreground != null && foreground in blockedPackages) {
             val deckComplete = cachedDeckComplete ?: false
             if (!deckComplete) {
                 Log.e(TAG, "BLOCKING $foreground — deck not complete")
@@ -145,14 +147,17 @@ class MonitorService : Service() {
     }
 
     private fun refreshDeckStatus() {
-        val status = AnkiChecker.getSpanishDeckStatus(this)
+        val selectedDecks = Prefs.getSelectedDecks(this)
+        val status = AnkiChecker.getMultiDeckStatus(this, selectedDecks)
         cachedDeckComplete = status.isComplete
         lastDeckCheckTime = System.currentTimeMillis()
 
-        val notifText = if (!status.found) {
-            "Deck 'spanish' not found"
+        val notifText = if (selectedDecks.isEmpty()) {
+            "No decks selected"
+        } else if (!status.found) {
+            "Selected decks not found"
         } else if (status.isComplete) {
-            "Deck complete — apps unlocked"
+            "Decks complete — apps unlocked"
         } else {
             "Due: ${status.totalDue} cards — apps blocked"
         }

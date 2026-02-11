@@ -1,6 +1,7 @@
 package com.ankigate
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -21,14 +22,22 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        findViewById<Button>(R.id.btnStartService).setOnClickListener {
-            MonitorService.start(this)
-            refreshStatus()
+        findViewById<Button>(R.id.btnSelectDecks).setOnClickListener {
+            startActivity(Intent(this, DeckSelectionActivity::class.java))
         }
 
-        findViewById<Button>(R.id.btnStopService).setOnClickListener {
-            MonitorService.stop(this)
-            refreshStatus()
+        findViewById<Button>(R.id.btnSelectApps).setOnClickListener {
+            startActivity(Intent(this, AppSelectionActivity::class.java))
+        }
+
+        findViewById<Button>(R.id.btnToggleService).setOnClickListener {
+            if (MonitorService.isRunning) {
+                MonitorService.stop(this)
+            } else {
+                MonitorService.start(this)
+            }
+            // Small delay so the service state has time to update
+            handler.postDelayed({ refreshStatus() }, 500)
         }
 
         MonitorService.start(this)
@@ -45,29 +54,49 @@ class MainActivity : Activity() {
     }
 
     private fun refreshStatus() {
-        val status = AnkiChecker.getSpanishDeckStatus(this)
+        val selectedDecks = Prefs.getSelectedDecks(this)
+        val status = AnkiChecker.getMultiDeckStatus(this, selectedDecks)
         val tvDeck = findViewById<TextView>(R.id.tvDeckStatus)
         val tvBlocked = findViewById<TextView>(R.id.tvBlockedApps)
+        val btnToggle = findViewById<Button>(R.id.btnToggleService)
 
-        if (!status.found) {
-            tvDeck.text = "Deck 'spanish' not found.\nMake sure AnkiDroid is installed and has been opened at least once."
-        } else if (status.isComplete) {
-            tvDeck.text = "Spanish deck: COMPLETE\nAll apps are unlocked."
+        // Update toggle button
+        if (MonitorService.isRunning) {
+            btnToggle.text = "Stop Monitoring"
+            btnToggle.setBackgroundColor(0xFF555555.toInt())
         } else {
-            tvDeck.text = "Spanish deck: ${status.totalDue} cards due\n" +
-                "(${status.newCount} new, ${status.reviewCount} review, ${status.learnCount} learning)\n" +
-                "Instagram, YouTube, and X are BLOCKED."
+            btnToggle.text = "Start Monitoring"
+            btnToggle.setBackgroundColor(0xFF6200EE.toInt())
         }
 
-        val blocked = MonitorService.BLOCKED_PACKAGES.joinToString("\n") { pkg ->
-            val appName = when (pkg) {
-                "com.instagram.android" -> "Instagram"
-                "com.google.android.youtube" -> "YouTube"
-                "com.twitter.android" -> "X (Twitter)"
-                else -> pkg
-            }
-            "  - $appName"
+        if (selectedDecks.isEmpty()) {
+            tvDeck.text = "No decks selected.\nTap 'Select Decks' to choose which decks to monitor."
+        } else if (!status.found) {
+            tvDeck.text = "Selected decks not found.\nMake sure AnkiDroid is installed and has been opened at least once."
+        } else if (status.isComplete) {
+            tvDeck.text = "All selected decks: COMPLETE\nAll apps are unlocked."
+        } else {
+            val deckList = selectedDecks.sorted().joinToString(", ")
+            tvDeck.text = "Decks ($deckList): ${status.totalDue} cards due\n" +
+                "(${status.newCount} new, ${status.reviewCount} review, ${status.learnCount} learning)\n" +
+                "Blocked apps are LOCKED."
         }
-        tvBlocked.text = "Blocked apps:\n$blocked"
+
+        val blockedPackages = Prefs.getBlockedPackages(this)
+        if (blockedPackages.isEmpty()) {
+            tvBlocked.text = "No blocked apps selected.\nTap 'Select Blocked Apps' to choose."
+        } else {
+            val appNames = blockedPackages.map { pkg -> getAppLabel(pkg) }.sorted()
+            tvBlocked.text = "Blocked apps:\n" + appNames.joinToString("\n") { "  - $it" }
+        }
+    }
+
+    private fun getAppLabel(packageName: String): String {
+        return try {
+            val ai = packageManager.getApplicationInfo(packageName, 0)
+            packageManager.getApplicationLabel(ai).toString()
+        } catch (e: Exception) {
+            packageName
+        }
     }
 }

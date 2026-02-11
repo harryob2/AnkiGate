@@ -1,63 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center_horizontal"
-    android:background="#121212">
+    android:background="#121212"
+    android:fillViewport="true">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="AnkiGate"
-        android:textSize="28sp"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        android:layout_marginBottom="8dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Complete your Anki deck to unlock apps"
-        android:textSize="14sp"
-        android:textColor="#AAAAAA"
-        android:layout_marginBottom="32dp" />
-
-    <TextView
-        android:id="@+id/tvDeckStatus"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Checking deck status..."
-        android:textSize="16sp"
-        android:textColor="#E0E0E0"
-        android:background="#1E1E1E"
-        android:padding="20dp"
-        android:layout_marginBottom="16dp" />
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="24dp"
+        android:paddingTop="48dp"
+        android:gravity="center_horizontal"
+        android:fitsSystemWindows="true">
 
-    <TextView
-        android:id="@+id/tvBlockedApps"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Blocked apps:"
-        android:textSize="14sp"
-        android:textColor="#CCCCCC"
-        android:background="#1E1E1E"
-        android:padding="20dp"
-        android:layout_marginBottom="32dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="AnkiGate"
+            android:textSize="28sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
 
-    <Button
-        android:id="@+id/btnStartService"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Start Monitoring"
-        android:layout_marginBottom="8dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Complete your Anki deck to unlock apps"
+            android:textSize="14sp"
+            android:textColor="#AAAAAA"
+            android:layout_marginBottom="32dp" />
 
-    <Button
-        android:id="@+id/btnStopService"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Stop Monitoring"
-        android:backgroundTint="#555555" />
+        <TextView
+            android:id="@+id/tvDeckStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Checking deck status..."
+            android:textSize="16sp"
+            android:textColor="#E0E0E0"
+            android:background="#1E1E1E"
+            android:padding="20dp"
+            android:layout_marginBottom="16dp" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/tvBlockedApps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Blocked apps:"
+            android:textSize="14sp"
+            android:textColor="#CCCCCC"
+            android:background="#1E1E1E"
+            android:padding="20dp"
+            android:layout_marginBottom="24dp" />
+
+        <Button
+            android:id="@+id/btnSelectDecks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select Decks"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btnSelectApps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select Blocked Apps"
+            android:layout_marginBottom="24dp" />
+
+        <Button
+            android:id="@+id/btnToggleService"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start Monitoring" />
+
+    </LinearLayout>
+
+</ScrollView>
