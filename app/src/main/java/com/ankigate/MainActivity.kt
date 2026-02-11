@@ -63,10 +63,10 @@ class MainActivity : Activity() {
         // Update toggle button
         if (MonitorService.isRunning) {
             btnToggle.text = "Stop Monitoring"
-            btnToggle.setBackgroundColor(0xFF555555.toInt())
+            btnToggle.setBackgroundResource(R.drawable.bg_btn_danger)
         } else {
             btnToggle.text = "Start Monitoring"
-            btnToggle.setBackgroundColor(0xFF6200EE.toInt())
+            btnToggle.setBackgroundResource(R.drawable.bg_btn_accent)
         }
 
         if (selectedDecks.isEmpty()) {

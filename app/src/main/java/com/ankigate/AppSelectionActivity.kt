@@ -159,10 +159,11 @@ class AppSelectionActivity : Activity() {
             val inflater = LayoutInflater.from(parent.context)
             return if (viewType == TYPE_HEADER) {
                 val tv = TextView(parent.context).apply {
-                    textSize = 13f
-                    setTextColor(0xFFAAAAAAAA.toInt())
-                    setPadding(dp(16), dp(16), dp(16), dp(8))
-                    setTypeface(typeface, android.graphics.Typeface.BOLD)
+                    textSize = 11f
+                    setTextColor(0xFF6B6B6B.toInt())
+                    setPadding(dp(20), dp(16), dp(20), dp(8))
+                    letterSpacing = 0.1f
+                    setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL))
                 }
                 HeaderVH(tv)
             } else {

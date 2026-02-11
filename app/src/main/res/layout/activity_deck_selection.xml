@@ -3,25 +3,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#121212">
+    android:background="@color/bg">
 
+    <!-- Toolbar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingTop="40dp"
-        android:paddingBottom="8dp"
-        android:paddingStart="8dp"
-        android:paddingEnd="24dp">
+        android:paddingTop="44dp"
+        android:paddingBottom="12dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="20dp">
 
         <TextView
             android:id="@+id/btnBack"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:text="\u2190"
-            android:textSize="24sp"
-            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textColor="@color/textPrimary"
             android:gravity="center"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:clickable="true"
@@ -31,10 +32,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Select Decks"
-            android:textSize="24sp"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
-            android:paddingStart="8dp" />
+            android:textSize="20sp"
+            android:textColor="@color/textPrimary"
+            android:fontFamily="sans-serif-medium"
+            android:paddingStart="4dp" />
 
     </LinearLayout>
 
@@ -43,10 +44,15 @@
         android:layout_height="wrap_content"
         android:text="Apps are blocked when ANY selected deck has due cards"
         android:textSize="13sp"
-        android:textColor="#AAAAAA"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:paddingBottom="16dp" />
+        android:textColor="@color/textTertiary"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="12dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider" />
 
     <TextView
         android:id="@+id/tvEmpty"
@@ -54,7 +60,7 @@
         android:layout_height="wrap_content"
         android:text="No decks found.\nMake sure AnkiDroid is installed and has been opened at least once."
         android:textSize="14sp"
-        android:textColor="#888888"
+        android:textColor="@color/textTertiary"
         android:gravity="center"
         android:padding="32dp"
         android:visibility="gone" />
@@ -63,13 +69,31 @@
         android:id="@+id/rvDecks"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:paddingTop="4dp" />
 
-    <Button
-        android:id="@+id/btnSave"
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider" />
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Save"
-        android:layout_margin="16dp" />
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_btn_accent"
+            android:text="Save"
+            android:textColor="#FFFFFFFF"
+            android:textSize="15sp"
+            android:textAllCaps="false"
+            android:fontFamily="sans-serif-medium"
+            android:stateListAnimator="@null" />
+
+    </FrameLayout>
 
 </LinearLayout>

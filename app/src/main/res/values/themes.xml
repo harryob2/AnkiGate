@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.AnkiGate" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">#121212</item>
-        <item name="android:navigationBarColor">#121212</item>
+    <style name="Theme.AnkiGate" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:statusBarColor">@color/bg</item>
+        <item name="android:navigationBarColor">@color/bg</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
     <style name="Theme.AnkiGate.Blocking" parent="android:Theme.Material.NoActionBar">
-        <item name="android:windowBackground">#FF1A1A2E</item>
-        <item name="android:statusBarColor">#FF1A1A2E</item>
-        <item name="android:navigationBarColor">#FF1A1A2E</item>
+        <item name="android:windowBackground">#FF0D0D1A</item>
+        <item name="android:statusBarColor">#FF0D0D1A</item>
+        <item name="android:navigationBarColor">#FF0D0D1A</item>
         <item name="android:windowIsTranslucent">false</item>
         <item name="android:windowDisablePreview">true</item>
     </style>
