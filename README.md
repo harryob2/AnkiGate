@@ -22,9 +22,13 @@ Block distracting apps until you finish your daily Anki reviews. Choose which de
 
 ## Screenshots
 
-| Main | App Selection | Blocking |
-|------|---------------|----------|
-| Status dashboard with deck info, blocked apps list, and service toggle | Pick apps to block with social media pinned at top | Full-screen blocker with card count and AnkiDroid shortcut |
+<p align="center">
+  <img src="screenshots/ankigate_homescreen.png" width="250" alt="Home screen" />
+  &nbsp;&nbsp;
+  <img src="screenshots/ankigate_select_apps.png" width="250" alt="App selection" />
+  &nbsp;&nbsp;
+  <img src="screenshots/ankigate_select_decks.png" width="250" alt="Deck selection" />
+</p>
 
 ## Building
 

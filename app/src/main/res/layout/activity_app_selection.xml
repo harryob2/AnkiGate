@@ -3,30 +3,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/bg">
+    android:background="@color/bg"
+    android:fitsSystemWindows="true">
 
     <!-- Toolbar -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingTop="44dp"
-        android:paddingBottom="12dp"
         android:paddingStart="4dp"
-        android:paddingEnd="20dp">
+        android:paddingEnd="16dp">
 
-        <TextView
+        <ImageView
             android:id="@+id/btnBack"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:text="\u2190"
-            android:textSize="22sp"
-            android:textColor="@color/textPrimary"
-            android:gravity="center"
+            android:src="@drawable/ic_arrow_back"
+            android:scaleType="center"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:clickable="true"
-            android:focusable="true" />
+            android:focusable="true"
+            android:contentDescription="Back" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -35,7 +33,7 @@
             android:textSize="20sp"
             android:textColor="@color/textPrimary"
             android:fontFamily="sans-serif-medium"
-            android:paddingStart="4dp" />
+            android:paddingStart="8dp" />
 
     </LinearLayout>
 

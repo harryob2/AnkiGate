@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg"
+    android:fitsSystemWindows="true"
     android:fillViewport="true">
 
     <LinearLayout
@@ -12,7 +13,7 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:paddingBottom="32dp"
-        android:paddingTop="56dp"
+        android:paddingTop="24dp"
         android:gravity="center_horizontal">
 
         <TextView
@@ -105,6 +106,10 @@
             android:textAllCaps="false"
             android:fontFamily="sans-serif-medium"
             android:stateListAnimator="@null"
+            android:drawableEnd="@drawable/ic_chevron_right"
+            android:paddingStart="20dp"
+            android:paddingEnd="12dp"
+            android:gravity="center_vertical|start"
             android:layout_marginBottom="10dp" />
 
         <Button
@@ -118,6 +123,10 @@
             android:textAllCaps="false"
             android:fontFamily="sans-serif-medium"
             android:stateListAnimator="@null"
+            android:drawableEnd="@drawable/ic_chevron_right"
+            android:paddingStart="20dp"
+            android:paddingEnd="12dp"
+            android:gravity="center_vertical|start"
             android:layout_marginBottom="24dp" />
 
         <!-- Toggle button -->
