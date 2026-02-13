@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="screenshots/ankigate_logo.png" width="120" alt="AnkiGate logo" />
+</p>
 <h1 align="center">AnkiGate</h1>
 <p align="center"><em>REPETITIO EST MATER STUDIORUM</em></p>
 
