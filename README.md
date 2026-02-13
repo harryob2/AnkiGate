@@ -6,7 +6,9 @@
 
 Block distracting apps until you finish your daily Anki reviews. Choose which decks to monitor and which apps to lock — once all due cards are done, everything unlocks automatically.
 
-<h3 align="center">**Website:** [ankigate.com](https://ankigate.com)</h3>
+<p align="center">
+  <a href="https://ankigate.com"><strong>Website: ankigate.com</strong></a>
+</p>
 
 ## Features
 
@@ -101,4 +103,5 @@ Or install the APK directly on your device and grant permissions through system 
 ## License
 
 MIT
+
 
