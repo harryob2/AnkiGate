@@ -1,6 +1,5 @@
-# AnkiGate
-
-> *REPETITIO EST MATER STUDIORUM*
+<h1 align="center">AnkiGate</h1>
+<p align="center"><em>REPETITIO EST MATER STUDIORUM</em></p>
 
 Block distracting apps until you finish your daily Anki reviews. Choose which decks to monitor and which apps to lock — once all due cards are done, everything unlocks automatically.
 
