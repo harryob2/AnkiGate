@@ -104,7 +104,4 @@ Or install the APK directly on your device and grant permissions through system 
 
 ## License
 
-MIT
-
-
-
+All Rights Reserved. AnkiGate is proprietary software. You may not copy, modify, or distribute this software without explicit permission from the author.

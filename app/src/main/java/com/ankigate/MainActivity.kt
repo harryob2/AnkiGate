@@ -5,7 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 
 class MainActivity : Activity() {
@@ -18,9 +20,19 @@ class MainActivity : Activity() {
         }
     }
 
+    private lateinit var billingManager: BillingManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        Prefs.ensureTrialStarted(this)
+
+        billingManager = BillingManager(this)
+        billingManager.onPurchaseComplete = {
+            runOnUiThread { refreshTrialBanner() }
+        }
+        billingManager.connect()
 
         findViewById<Button>(R.id.btnSelectDecks).setOnClickListener {
             startActivity(Intent(this, DeckSelectionActivity::class.java))
@@ -36,8 +48,11 @@ class MainActivity : Activity() {
             } else {
                 MonitorService.start(this)
             }
-            // Small delay so the service state has time to update
             handler.postDelayed({ refreshStatus() }, 500)
+        }
+
+        findViewById<Button>(R.id.btnUpgrade).setOnClickListener {
+            billingManager.launchPurchase(this)
         }
 
         MonitorService.start(this)
@@ -45,12 +60,43 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        refreshTrialBanner()
         handler.post(refreshRunnable)
     }
 
     override fun onPause() {
         handler.removeCallbacks(refreshRunnable)
         super.onPause()
+    }
+
+    override fun onDestroy() {
+        billingManager.destroy()
+        super.onDestroy()
+    }
+
+    private fun refreshTrialBanner() {
+        val banner = findViewById<LinearLayout>(R.id.bannerTrial)
+        val tvTrialStatus = findViewById<TextView>(R.id.tvTrialStatus)
+
+        if (Prefs.isPremium(this)) {
+            banner.visibility = View.GONE
+            return
+        }
+
+        banner.visibility = View.VISIBLE
+
+        if (Prefs.isTrialActive(this)) {
+            val days = Prefs.trialDaysRemaining(this)
+            banner.setBackgroundResource(R.drawable.bg_banner_trial)
+            tvTrialStatus.text = if (days == 1) {
+                "Last day of your free trial"
+            } else {
+                "$days days left in your free trial"
+            }
+        } else {
+            banner.setBackgroundResource(R.drawable.bg_banner_expired)
+            tvTrialStatus.text = "Your free trial has expired\nUpgrade to unlock unlimited decks and apps"
+        }
     }
 
     private fun refreshStatus() {
