@@ -2,6 +2,8 @@
 
 Block distracting apps until you finish your daily Anki reviews. Choose which decks to monitor and which apps to lock — once all due cards are done, everything unlocks automatically.
 
+**Website:** [ankigate.com](https://ankigate.com) · **Privacy Policy:** [ankigate.com/privacy.html](https://ankigate.com/privacy.html)
+
 ## Features
 
 - **Configurable deck monitoring** — select any combination of your AnkiDroid decks
