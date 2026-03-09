@@ -15,12 +15,15 @@ android {
     namespace = "com.ankigate"
     compileSdk = 36
 
+    val ciVersionCode = (project.findProperty("ciVersionCode") as String?)?.toIntOrNull()
+    val ciVersionName = project.findProperty("ciVersionName") as String?
+
     defaultConfig {
         applicationId = "com.ankigate"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = ciVersionCode ?: 1
+        versionName = ciVersionName ?: "1.0"
     }
 
     if (keystorePropertiesFile.exists()) {

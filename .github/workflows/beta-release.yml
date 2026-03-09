@@ -1,0 +1,144 @@
+name: Beta Release
+
+on:
+  push:
+    branches:
+      - beta
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: beta-release
+  cancel-in-progress: true
+
+jobs:
+  build-publish-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      STABLE_ASSET_NAME: ankigate-beta-latest.apk
+      RELEASE_TAG: beta-latest
+      RELEASE_URL: https://github.com/harryob2/AnkiGate/releases/download/beta-latest/ankigate-beta-latest.apk
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Validate required signing secrets
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for var in ANDROID_KEYSTORE_BASE64 ANDROID_STORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            if [ -z "${!var}" ]; then
+              echo "Missing required secret: $var" >&2
+              exit 1
+            fi
+          done
+
+      - name: Create signing files
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > release.keystore
+          cat > keystore.properties <<EOF
+          storeFile=release.keystore
+          storePassword=$ANDROID_STORE_PASSWORD
+          keyAlias=$ANDROID_KEY_ALIAS
+          keyPassword=$ANDROID_KEY_PASSWORD
+          EOF
+
+      - name: Compute CI version metadata
+        run: |
+          set -euo pipefail
+          VERSION_CODE=$((100000 + GITHUB_RUN_NUMBER))
+          VERSION_NAME="1.0-beta.${GITHUB_RUN_NUMBER}"
+          echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
+          echo "version_name=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+        id: version
+
+      - name: Build signed release APK
+        run: |
+          set -euo pipefail
+          ./gradlew clean assembleRelease \
+            -PciVersionCode=${{ steps.version.outputs.version_code }} \
+            -PciVersionName=${{ steps.version.outputs.version_name }}
+
+      - name: Prepare release artifacts
+        run: |
+          set -euo pipefail
+          cp app/build/outputs/apk/release/app-release.apk "${STABLE_ASSET_NAME}"
+          VERSIONED_ASSET_NAME="ankigate-beta-v${{ steps.version.outputs.version_name }}-${GITHUB_SHA::7}.apk"
+          cp app/build/outputs/apk/release/app-release.apk "$VERSIONED_ASSET_NAME"
+          sha256sum "${STABLE_ASSET_NAME}" > "${STABLE_ASSET_NAME}.sha256"
+          sha256sum "$VERSIONED_ASSET_NAME" > "${VERSIONED_ASSET_NAME}.sha256"
+          echo "versioned_asset_name=$VERSIONED_ASSET_NAME" >> "$GITHUB_OUTPUT"
+          echo "versioned_sha_name=${VERSIONED_ASSET_NAME}.sha256" >> "$GITHUB_OUTPUT"
+        id: artifacts
+
+      - name: Ensure prerelease exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view "${RELEASE_TAG}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            echo "Release ${RELEASE_TAG} already exists."
+          else
+            gh release create "${RELEASE_TAG}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --title "AnkiGate Beta (Latest)" \
+              --notes "Auto-updated beta release from branch: beta" \
+              --prerelease \
+              --latest=false
+          fi
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release upload "${RELEASE_TAG}" \
+            "${STABLE_ASSET_NAME}#${STABLE_ASSET_NAME}" \
+            "${STABLE_ASSET_NAME}.sha256#${STABLE_ASSET_NAME}.sha256" \
+            "${{ steps.artifacts.outputs.versioned_asset_name }}#${{ steps.artifacts.outputs.versioned_asset_name }}" \
+            "${{ steps.artifacts.outputs.versioned_sha_name }}#${{ steps.artifacts.outputs.versioned_sha_name }}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --clobber
+
+      - name: Verify uploaded stable asset checksum
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 --retry-connrefused -o downloaded.apk "${RELEASE_URL}"
+          LOCAL_SHA="$(sha256sum "${STABLE_ASSET_NAME}" | awk '{print $1}')"
+          REMOTE_SHA="$(sha256sum downloaded.apk | awk '{print $1}')"
+          echo "Local SHA:  ${LOCAL_SHA}"
+          echo "Remote SHA: ${REMOTE_SHA}"
+          test "${LOCAL_SHA}" = "${REMOTE_SHA}"
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ankigate-beta-release-${{ github.run_number }}
+          path: |
+            ankigate-beta-latest.apk
+            ankigate-beta-latest.apk.sha256
+            ${{ steps.artifacts.outputs.versioned_asset_name }}
+            ${{ steps.artifacts.outputs.versioned_sha_name }}
