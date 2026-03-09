@@ -88,7 +88,9 @@ class MainActivity : Activity() {
             btnToggle.setBackgroundResource(R.drawable.bg_btn_accent)
         }
 
-        if (selectedDecks.isEmpty()) {
+        if (!PermissionSetup.isAllGranted(this)) {
+            tvDeck.text = "Required permissions are missing.\nAnkiGate will not work until they are approved.\nTap 'Permissions Setup'.\nIf blocked in Android settings, enable 'Allow restricted settings' for AnkiGate."
+        } else if (selectedDecks.isEmpty()) {
             tvDeck.text = "No decks selected.\nTap 'Select Decks' to choose which decks to monitor."
         } else if (!AnkiChecker.hasAnkiPermission(this)) {
             tvDeck.text = "AnkiDroid permission required.\nTap 'Select Decks' and allow database access."

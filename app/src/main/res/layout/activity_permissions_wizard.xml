@@ -51,8 +51,17 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Grant all permissions below so AnkiGate can read decks, monitor apps, and block distractions."
+                android:text="Grant all permissions below so AnkiGate can read decks, monitor apps, and block distractions. AnkiGate will not work until these are approved."
                 android:textSize="14sp"
+                android:textColor="@color/textSecondary"
+                android:lineSpacingExtra="3dp"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="If Usage Access or Display Over Other Apps is blocked, open Android app info for AnkiGate and tap 'Allow restricted settings', then return here."
+                android:textSize="13sp"
                 android:textColor="@color/textSecondary"
                 android:lineSpacingExtra="3dp"
                 android:layout_marginBottom="12dp" />
@@ -182,7 +191,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Lets AnkiGate detect which app is in the foreground."
+                    android:text="Lets AnkiGate detect which app is in the foreground. If blocked, allow restricted settings for AnkiGate first."
                     android:textColor="@color/textSecondary"
                     android:textSize="13sp"
                     android:layout_marginTop="2dp" />
@@ -230,7 +239,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Allows AnkiGate to show the blocking screen above other apps."
+                    android:text="Allows AnkiGate to show the blocking screen above other apps. If blocked, allow restricted settings for AnkiGate first."
                     android:textColor="@color/textSecondary"
                     android:textSize="13sp"
                     android:layout_marginTop="2dp" />

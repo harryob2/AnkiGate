@@ -125,7 +125,7 @@ class PermissionsWizardActivity : Activity() {
             btnGrantNext.isEnabled = false
             Prefs.setSeenPermissionWizard(this, true)
         } else {
-            tvSummary.text = "Permissions granted: $grantedCount/$totalCount"
+            tvSummary.text = "Permissions granted: $grantedCount/$totalCount\nAnkiGate will not work until all required permissions are approved."
             tvSummary.setTextColor(getColor(R.color.textSecondary))
             btnGrantNext.text = "Grant Next Missing Permission"
             btnGrantNext.isEnabled = true
@@ -178,7 +178,7 @@ class PermissionsWizardActivity : Activity() {
             btnGrantUsage.isEnabled = false
             btnGrantUsage.alpha = 0.5f
         } else {
-            tvStatusUsage.text = "Missing"
+            tvStatusUsage.text = "Missing (AnkiGate will not work until approved)"
             tvStatusUsage.setTextColor(getColor(R.color.negative))
             btnGrantUsage.text = "Open Usage Access Settings"
             btnGrantUsage.isEnabled = true
@@ -192,7 +192,7 @@ class PermissionsWizardActivity : Activity() {
             btnGrantOverlay.isEnabled = false
             btnGrantOverlay.alpha = 0.5f
         } else {
-            tvStatusOverlay.text = "Missing"
+            tvStatusOverlay.text = "Missing (AnkiGate will not work until approved)"
             tvStatusOverlay.setTextColor(getColor(R.color.negative))
             btnGrantOverlay.text = "Open Overlay Settings"
             btnGrantOverlay.isEnabled = true
