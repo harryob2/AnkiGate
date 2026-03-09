@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="4dp"
+        android:paddingEnd="16dp">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_arrow_back"
+            android:scaleType="center"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Permissions Setup"
+            android:textSize="20sp"
+            android:textColor="@color/textPrimary"
+            android:fontFamily="sans-serif-medium"
+            android:paddingStart="8dp" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Grant all permissions below so AnkiGate can read decks, monitor apps, and block distractions."
+                android:textSize="14sp"
+                android:textColor="@color/textSecondary"
+                android:lineSpacingExtra="3dp"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/tvPermissionSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Permissions granted: 0/4"
+                android:textSize="14sp"
+                android:textColor="@color/textSecondary"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="16dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card"
+                android:padding="16dp"
+                android:layout_marginBottom="10dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="AnkiDroid database access"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif-medium" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Required to load your Anki decks and due counts."
+                    android:textColor="@color/textSecondary"
+                    android:textSize="13sp"
+                    android:layout_marginTop="2dp" />
+
+                <TextView
+                    android:id="@+id/tvStatusAnki"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Missing"
+                    android:textSize="13sp"
+                    android:textColor="@color/negative"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp" />
+
+                <Button
+                    android:id="@+id/btnGrantAnki"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:background="@drawable/bg_btn_surface"
+                    android:text="Grant Permission"
+                    android:textAllCaps="false"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:stateListAnimator="@null" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card"
+                android:padding="16dp"
+                android:layout_marginBottom="10dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Notifications"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif-medium" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Needed for foreground-service monitoring notifications."
+                    android:textColor="@color/textSecondary"
+                    android:textSize="13sp"
+                    android:layout_marginTop="2dp" />
+
+                <TextView
+                    android:id="@+id/tvStatusNotifications"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Missing"
+                    android:textSize="13sp"
+                    android:textColor="@color/negative"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp" />
+
+                <Button
+                    android:id="@+id/btnGrantNotifications"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:background="@drawable/bg_btn_surface"
+                    android:text="Grant Permission"
+                    android:textAllCaps="false"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:stateListAnimator="@null" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card"
+                android:padding="16dp"
+                android:layout_marginBottom="10dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Usage access"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif-medium" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Lets AnkiGate detect which app is in the foreground."
+                    android:textColor="@color/textSecondary"
+                    android:textSize="13sp"
+                    android:layout_marginTop="2dp" />
+
+                <TextView
+                    android:id="@+id/tvStatusUsage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Missing"
+                    android:textSize="13sp"
+                    android:textColor="@color/negative"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp" />
+
+                <Button
+                    android:id="@+id/btnGrantUsage"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:background="@drawable/bg_btn_surface"
+                    android:text="Open Usage Access Settings"
+                    android:textAllCaps="false"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:stateListAnimator="@null" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Display over other apps"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif-medium" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Allows AnkiGate to show the blocking screen above other apps."
+                    android:textColor="@color/textSecondary"
+                    android:textSize="13sp"
+                    android:layout_marginTop="2dp" />
+
+                <TextView
+                    android:id="@+id/tvStatusOverlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Missing"
+                    android:textSize="13sp"
+                    android:textColor="@color/negative"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp" />
+
+                <Button
+                    android:id="@+id/btnGrantOverlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:background="@drawable/bg_btn_surface"
+                    android:text="Open Overlay Settings"
+                    android:textAllCaps="false"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:stateListAnimator="@null" />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnGrantNext"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@drawable/bg_btn_accent"
+                android:text="Grant Next Missing Permission"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFFFF"
+                android:textSize="15sp"
+                android:fontFamily="sans-serif-medium"
+                android:stateListAnimator="@null"
+                android:layout_marginBottom="10dp" />
+
+            <Button
+                android:id="@+id/btnDone"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_btn_surface"
+                android:text="Done"
+                android:textAllCaps="false"
+                android:textColor="@color/textPrimary"
+                android:textSize="15sp"
+                android:fontFamily="sans-serif-medium"
+                android:stateListAnimator="@null" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

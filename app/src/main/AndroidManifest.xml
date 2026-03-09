@@ -47,6 +47,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".PermissionsWizardActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".BlockingActivity"
             android:exported="false"
             android:launchMode="singleInstance"

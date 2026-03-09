@@ -8,6 +8,7 @@ import android.os.Looper
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.Switch
 import android.widget.TextView
 
 class MainActivity : Activity() {
@@ -42,6 +43,10 @@ class MainActivity : Activity() {
             startActivity(Intent(this, AppSelectionActivity::class.java))
         }
 
+        findViewById<Button>(R.id.btnPermissionsWizard).setOnClickListener {
+            startActivity(Intent(this, PermissionsWizardActivity::class.java))
+        }
+
         findViewById<Button>(R.id.btnToggleService).setOnClickListener {
             if (MonitorService.isRunning) {
                 MonitorService.stop(this)
@@ -53,6 +58,20 @@ class MainActivity : Activity() {
 
         findViewById<Button>(R.id.btnUpgrade).setOnClickListener {
             billingManager.launchPurchase(this)
+        }
+
+        val switchStatusNotification = findViewById<Switch>(R.id.switchStatusNotification)
+        switchStatusNotification.isChecked = Prefs.isStatusNotificationEnabled(this)
+        switchStatusNotification.setOnCheckedChangeListener { _, isChecked ->
+            Prefs.setStatusNotificationEnabled(this, isChecked)
+            if (MonitorService.isRunning) {
+                MonitorService.syncNotificationSetting(this)
+            }
+        }
+
+        if (!Prefs.hasSeenPermissionWizard(this) && !PermissionSetup.isAllGranted(this)) {
+            Prefs.setSeenPermissionWizard(this, true)
+            startActivity(Intent(this, PermissionsWizardActivity::class.java))
         }
 
         MonitorService.start(this)
@@ -117,6 +136,8 @@ class MainActivity : Activity() {
 
         if (selectedDecks.isEmpty()) {
             tvDeck.text = "No decks selected.\nTap 'Select Decks' to choose which decks to monitor."
+        } else if (!AnkiChecker.hasAnkiPermission(this)) {
+            tvDeck.text = "AnkiDroid permission required.\nTap 'Select Decks' and allow database access."
         } else if (!status.found) {
             tvDeck.text = "Selected decks not found.\nMake sure AnkiDroid is installed and has been opened at least once."
         } else if (status.isComplete) {

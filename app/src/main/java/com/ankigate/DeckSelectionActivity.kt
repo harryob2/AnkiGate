@@ -1,7 +1,6 @@
 package com.ankigate
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -97,14 +96,6 @@ class DeckSelectionActivity : Activity() {
         }
     }
 
-    private fun showUpgradePrompt() {
-        AlertDialog.Builder(this)
-            .setTitle("Pro Feature")
-            .setMessage("Monitoring multiple decks requires AnkiGate Pro. Upgrade for \$9.99 to unlock unlimited decks.")
-            .setPositiveButton("OK", null)
-            .show()
-    }
-
     private inner class DeckAdapter(private val decks: List<String>) :
         RecyclerView.Adapter<DeckAdapter.VH>() {
 
@@ -123,11 +114,6 @@ class DeckSelectionActivity : Activity() {
             holder.cb.isChecked = selected.any { it.equals(deck, ignoreCase = true) }
             holder.cb.setOnCheckedChangeListener { _, checked ->
                 if (checked) {
-                    if (!Prefs.hasFullAccess(this@DeckSelectionActivity) && selected.size >= 1) {
-                        holder.cb.isChecked = false
-                        showUpgradePrompt()
-                        return@setOnCheckedChangeListener
-                    }
                     selected.add(deck)
                 } else {
                     selected.removeAll { it.equals(deck, ignoreCase = true) }

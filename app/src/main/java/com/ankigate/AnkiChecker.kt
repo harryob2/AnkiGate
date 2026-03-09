@@ -1,6 +1,7 @@
 package com.ankigate
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -10,7 +11,7 @@ import org.json.JSONArray
 object AnkiChecker {
 
     @Volatile
-    var testModeComplete: Boolean? = null  // null = normal mode, true/false = override
+    var testModeComplete: Boolean? = null  // debug-only override: null=normal, true/false=forced
 
     private const val AUTHORITY = "com.ichi2.anki.flashcards"
     private const val ANKI_PACKAGE = "com.ichi2.anki"
@@ -30,10 +31,13 @@ object AnkiChecker {
     }
 
     fun getSpanishDeckStatus(context: Context): DeckStatus {
-        testModeComplete?.let { complete ->
-            return if (complete) DeckStatus(found = true, 0, 0, 0)
-            else DeckStatus(found = true, 5, 10, 3)
+        if (isDebuggable(context)) {
+            testModeComplete?.let { complete ->
+                return if (complete) DeckStatus(found = true, 0, 0, 0)
+                else DeckStatus(found = true, 5, 10, 3)
+            }
         }
+
         if (!hasAnkiAccess(context)) return DeckStatus(found = false)
         return try {
             val cursor = context.contentResolver.query(
@@ -94,9 +98,11 @@ object AnkiChecker {
         if (selectedDecks.isEmpty()) return DeckStatus(found = false)
         if (!hasAnkiAccess(context)) return DeckStatus(found = false)
 
-        testModeComplete?.let { complete ->
-            return if (complete) DeckStatus(found = true, 0, 0, 0)
-            else DeckStatus(found = true, 5, 10, 3)
+        if (isDebuggable(context)) {
+            testModeComplete?.let { complete ->
+                return if (complete) DeckStatus(found = true, 0, 0, 0)
+                else DeckStatus(found = true, 5, 10, 3)
+            }
         }
 
         return try {
@@ -162,4 +168,7 @@ object AnkiChecker {
 
     fun hasAnkiAccess(context: Context): Boolean =
         isAnkiInstalled(context) && hasAnkiPermission(context)
+
+    private fun isDebuggable(context: Context): Boolean =
+        (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
 }

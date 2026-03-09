@@ -10,6 +10,8 @@ object Prefs {
     private const val KEY_BLOCKED_PACKAGES = "blocked_packages"
     private const val KEY_TRIAL_START = "trial_start"
     private const val KEY_IS_PREMIUM = "is_premium"
+    private const val KEY_STATUS_NOTIFICATION_ENABLED = "status_notification_enabled"
+    private const val KEY_PERMISSION_WIZARD_SEEN = "permission_wizard_seen"
 
     private const val TRIAL_DURATION_MS = 30L * 24 * 60 * 60 * 1000 // 30 days
 
@@ -31,6 +33,20 @@ object Prefs {
 
     fun setBlockedPackages(context: Context, packages: Set<String>) {
         prefs(context).edit().putStringSet(KEY_BLOCKED_PACKAGES, packages).apply()
+    }
+
+    fun isStatusNotificationEnabled(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_STATUS_NOTIFICATION_ENABLED, true)
+
+    fun setStatusNotificationEnabled(context: Context, enabled: Boolean) {
+        prefs(context).edit().putBoolean(KEY_STATUS_NOTIFICATION_ENABLED, enabled).apply()
+    }
+
+    fun hasSeenPermissionWizard(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_PERMISSION_WIZARD_SEEN, false)
+
+    fun setSeenPermissionWizard(context: Context, seen: Boolean) {
+        prefs(context).edit().putBoolean(KEY_PERMISSION_WIZARD_SEEN, seen).apply()
     }
 
     // --- Trial & Premium ---

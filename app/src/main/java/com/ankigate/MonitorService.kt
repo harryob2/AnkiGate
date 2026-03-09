@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
+import android.content.pm.ApplicationInfo
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -22,6 +23,7 @@ class MonitorService : Service() {
         const val TAG = "AnkiGate"
         const val CHANNEL_ID = "ankigate_monitor"
         const val NOTIFICATION_ID = 1
+        private const val ACTION_SYNC_NOTIFICATION_SETTING = "com.ankigate.SYNC_NOTIFICATION_SETTING"
         private const val POLL_INTERVAL_MS = 1000L
 
         @Volatile
@@ -36,6 +38,14 @@ class MonitorService : Service() {
         fun stop(context: Context) {
             context.stopService(Intent(context, MonitorService::class.java))
         }
+
+        fun syncNotificationSetting(context: Context) {
+            if (!isRunning) return
+            val intent = Intent(context, MonitorService::class.java).apply {
+                action = ACTION_SYNC_NOTIFICATION_SETTING
+            }
+            context.startService(intent)
+        }
     }
 
     private val handler = Handler(Looper.getMainLooper())
@@ -44,6 +54,9 @@ class MonitorService : Service() {
     private var lastDeckCheckTime = 0L
     private val DECK_CACHE_MS = 15_000L
     private var pollCount = 0
+    private var latestNotificationText = "Monitoring active"
+    private var notificationVisible = false
+    private var testReceiverRegistered = false
 
     private val pollRunnable = object : Runnable {
         override fun run() {
@@ -84,18 +97,29 @@ class MonitorService : Service() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        startForeground(NOTIFICATION_ID, buildNotification("Monitoring active"))
-        val filter = IntentFilter().apply {
-            addAction("com.ankigate.TEST_COMPLETE")
-            addAction("com.ankigate.TEST_INCOMPLETE")
-            addAction("com.ankigate.TEST_OFF")
+        startForeground(NOTIFICATION_ID, buildNotification(latestNotificationText))
+        notificationVisible = true
+        applyNotificationSetting()
+        if (isDebuggableBuild()) {
+            val filter = IntentFilter().apply {
+                addAction("com.ankigate.TEST_COMPLETE")
+                addAction("com.ankigate.TEST_INCOMPLETE")
+                addAction("com.ankigate.TEST_OFF")
+            }
+            registerReceiver(testReceiver, filter, Context.RECEIVER_EXPORTED)
+            testReceiverRegistered = true
+        } else {
+            AnkiChecker.testModeComplete = null
         }
-        registerReceiver(testReceiver, filter, Context.RECEIVER_EXPORTED)
         isRunning = true
         Log.e(TAG, "MonitorService onCreate")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_SYNC_NOTIFICATION_SETTING) {
+            applyNotificationSetting()
+            return START_STICKY
+        }
         handler.removeCallbacks(pollRunnable)
         handler.post(pollRunnable)
         isRunning = true
@@ -108,7 +132,17 @@ class MonitorService : Service() {
     override fun onDestroy() {
         isRunning = false
         handler.removeCallbacks(pollRunnable)
-        unregisterReceiver(testReceiver)
+        if (notificationVisible) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            notificationVisible = false
+        }
+        if (testReceiverRegistered) {
+            unregisterReceiver(testReceiver)
+            testReceiverRegistered = false
+        }
+        if (!isDebuggableBuild()) {
+            AnkiChecker.testModeComplete = null
+        }
         Log.e(TAG, "MonitorService destroyed")
         super.onDestroy()
     }
@@ -225,7 +259,39 @@ class MonitorService : Service() {
     }
 
     private fun updateNotification(text: String) {
+        latestNotificationText = text
+        if (!Prefs.isStatusNotificationEnabled(this)) {
+            if (notificationVisible) {
+                stopForeground(STOP_FOREGROUND_REMOVE)
+                notificationVisible = false
+            }
+            return
+        }
+
+        if (!notificationVisible) {
+            startForeground(NOTIFICATION_ID, buildNotification(latestNotificationText))
+            notificationVisible = true
+            return
+        }
+
         val nm = getSystemService(NotificationManager::class.java)
         nm.notify(NOTIFICATION_ID, buildNotification(text))
     }
+
+    private fun applyNotificationSetting() {
+        if (Prefs.isStatusNotificationEnabled(this)) {
+            if (notificationVisible) {
+                updateNotification(latestNotificationText)
+            } else {
+                startForeground(NOTIFICATION_ID, buildNotification(latestNotificationText))
+                notificationVisible = true
+            }
+        } else if (notificationVisible) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            notificationVisible = false
+        }
+    }
+
+    private fun isDebuggableBuild(): Boolean =
+        (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
 }
