@@ -1,7 +1,10 @@
 package com.ankigate
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
+import androidx.core.content.ContextCompat
 import org.json.JSONArray
 
 object AnkiChecker {
@@ -10,6 +13,8 @@ object AnkiChecker {
     var testModeComplete: Boolean? = null  // null = normal mode, true/false = override
 
     private const val AUTHORITY = "com.ichi2.anki.flashcards"
+    private const val ANKI_PACKAGE = "com.ichi2.anki"
+    const val ANKI_DB_PERMISSION = "com.ichi2.anki.permission.READ_WRITE_DATABASE"
     private val DECKS_URI: Uri = Uri.parse("content://$AUTHORITY/decks")
     private const val COL_NAME = "deck_name"
     private const val COL_COUNTS = "deck_count"
@@ -29,6 +34,7 @@ object AnkiChecker {
             return if (complete) DeckStatus(found = true, 0, 0, 0)
             else DeckStatus(found = true, 5, 10, 3)
         }
+        if (!hasAnkiAccess(context)) return DeckStatus(found = false)
         return try {
             val cursor = context.contentResolver.query(
                 DECKS_URI,
@@ -59,6 +65,7 @@ object AnkiChecker {
 
     /** Returns all deck names from AnkiDroid. */
     fun getAllDeckNames(context: Context): List<String> {
+        if (!hasAnkiAccess(context)) return emptyList()
         return try {
             val cursor = context.contentResolver.query(
                 DECKS_URI,
@@ -85,6 +92,7 @@ object AnkiChecker {
      */
     fun getMultiDeckStatus(context: Context, selectedDecks: Set<String>): DeckStatus {
         if (selectedDecks.isEmpty()) return DeckStatus(found = false)
+        if (!hasAnkiAccess(context)) return DeckStatus(found = false)
 
         testModeComplete?.let { complete ->
             return if (complete) DeckStatus(found = true, 0, 0, 0)
@@ -128,4 +136,30 @@ object AnkiChecker {
             DeckStatus(found = false)
         }
     }
+
+    fun isAnkiInstalled(context: Context): Boolean {
+        return try {
+            val pm = context.packageManager
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                pm.getPackageInfo(ANKI_PACKAGE, PackageManager.PackageInfoFlags.of(0))
+            } else {
+                @Suppress("DEPRECATION")
+                pm.getPackageInfo(ANKI_PACKAGE, 0)
+            }
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    fun hasAnkiPermission(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return true
+        return ContextCompat.checkSelfPermission(
+            context,
+            ANKI_DB_PERMISSION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun hasAnkiAccess(context: Context): Boolean =
+        isAnkiInstalled(context) && hasAnkiPermission(context)
 }

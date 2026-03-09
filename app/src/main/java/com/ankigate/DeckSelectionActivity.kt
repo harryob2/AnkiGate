@@ -2,44 +2,98 @@ package com.ankigate
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 class DeckSelectionActivity : Activity() {
 
     private val selected = mutableSetOf<String>()
+    private lateinit var rv: RecyclerView
+    private lateinit var tvEmpty: TextView
+
+    companion object {
+        private const val REQ_ANKI_PERMISSION = 1001
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_deck_selection)
 
         selected.addAll(Prefs.getSelectedDecks(this))
-
-        val allDecks = AnkiChecker.getAllDeckNames(this)
-        val rv = findViewById<RecyclerView>(R.id.rvDecks)
-        val tvEmpty = findViewById<TextView>(R.id.tvEmpty)
-
-        if (allDecks.isEmpty()) {
-            tvEmpty.visibility = View.VISIBLE
-            rv.visibility = View.GONE
-        } else {
-            tvEmpty.visibility = View.GONE
-            rv.visibility = View.VISIBLE
-            rv.layoutManager = LinearLayoutManager(this)
-            rv.adapter = DeckAdapter(allDecks)
-        }
+        rv = findViewById(R.id.rvDecks)
+        tvEmpty = findViewById(R.id.tvEmpty)
+        rv.layoutManager = LinearLayoutManager(this)
+        loadDecks()
 
         findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
 
         findViewById<View>(R.id.btnSave).setOnClickListener {
             Prefs.setSelectedDecks(this, selected)
             finish()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadDecks()
+    }
+
+    private fun loadDecks() {
+        if (!AnkiChecker.isAnkiInstalled(this)) {
+            tvEmpty.text = "AnkiDroid is not installed."
+            tvEmpty.visibility = View.VISIBLE
+            rv.visibility = View.GONE
+            return
+        }
+
+        if (!AnkiChecker.hasAnkiPermission(this)) {
+            tvEmpty.text = "AnkiDroid access is required to read decks.\nAllow permission when prompted."
+            tvEmpty.visibility = View.VISIBLE
+            rv.visibility = View.GONE
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(AnkiChecker.ANKI_DB_PERMISSION),
+                REQ_ANKI_PERMISSION
+            )
+            return
+        }
+
+        val allDecks = AnkiChecker.getAllDeckNames(this)
+        if (allDecks.isEmpty()) {
+            tvEmpty.text = "No decks found.\nMake sure AnkiDroid has decks and has been opened at least once."
+            tvEmpty.visibility = View.VISIBLE
+            rv.visibility = View.GONE
+        } else {
+            tvEmpty.visibility = View.GONE
+            rv.visibility = View.VISIBLE
+            rv.adapter = DeckAdapter(allDecks)
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != REQ_ANKI_PERMISSION) return
+
+        val granted = grantResults.isNotEmpty() &&
+            grantResults[0] == PackageManager.PERMISSION_GRANTED
+        if (granted) {
+            loadDecks()
+        } else {
+            tvEmpty.text = "AnkiDroid permission denied.\nEnable \"AnkiDroid database access\" in app permissions."
+            tvEmpty.visibility = View.VISIBLE
+            rv.visibility = View.GONE
         }
     }
 
