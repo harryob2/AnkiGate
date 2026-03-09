@@ -1,7 +1,6 @@
 package com.ankigate
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
@@ -59,14 +58,6 @@ class AppSelectionActivity : Activity() {
             Prefs.setBlockedPackages(this, selected)
             finish()
         }
-    }
-
-    private fun showUpgradePrompt() {
-        AlertDialog.Builder(this)
-            .setTitle("Pro Feature")
-            .setMessage("Blocking multiple apps requires AnkiGate Pro. Upgrade for \$9.99 to unlock unlimited apps.")
-            .setPositiveButton("OK", null)
-            .show()
     }
 
     private fun buildAppList(): List<ListItem> {
@@ -194,10 +185,6 @@ class AppSelectionActivity : Activity() {
                             selected.remove(item.packageName)
                             h.cb.isChecked = false
                         } else {
-                            if (!Prefs.hasFullAccess(this@AppSelectionActivity) && selected.size >= 1) {
-                                showUpgradePrompt()
-                                return@setOnClickListener
-                            }
                             selected.add(item.packageName)
                             h.cb.isChecked = true
                         }
