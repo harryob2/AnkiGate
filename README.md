@@ -52,6 +52,24 @@ export ANDROID_HOME=~/Library/Android/sdk
 
 The APK is output to `app/build/outputs/apk/debug/app-debug.apk`.
 
+## Beta Release Automation
+
+Pushes to the `beta` branch trigger the GitHub Actions workflow at `.github/workflows/beta-release.yml`.
+
+That workflow:
+
+- Builds a signed release APK
+- Publishes/updates prerelease tag `beta-latest`
+- Updates stable asset URL `ankigate-beta-latest.apk`
+- Verifies uploaded checksum matches the built APK
+
+Required repository secrets:
+
+- `ANDROID_KEYSTORE_BASE64`
+- `ANDROID_STORE_PASSWORD`
+- `ANDROID_KEY_ALIAS`
+- `ANDROID_KEY_PASSWORD`
+
 ## Installation
 
 ```bash
