@@ -2,11 +2,11 @@ package com.ankigate
 
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
+import org.junit.Assert.assertEquals
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -39,8 +39,10 @@ class MainActivityInstrumentationTest {
     fun opensPermissionsWizardWhenRequiredPermissionsMissing() {
         PermissionSetup.allGrantedOverrideForTests = false
         val scenario = ActivityScenario.launch(MainActivity::class.java)
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
-        onView(withId(R.id.tvPermissionSummary)).check(matches(isDisplayed()))
+        val resumedActivity = currentResumedActivity()
+        assertEquals(PermissionsWizardActivity::class.java, resumedActivity?.javaClass)
 
         scenario.close()
     }
@@ -71,5 +73,15 @@ class MainActivityInstrumentationTest {
             assertTrue(MonitorService.isRunning)
         }
         scenario.close()
+    }
+
+    private fun currentResumedActivity(): android.app.Activity? {
+        var resumedActivity: android.app.Activity? = null
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            val resumed = ActivityLifecycleMonitorRegistry.getInstance()
+                .getActivitiesInStage(Stage.RESUMED)
+            resumedActivity = resumed.firstOrNull()
+        }
+        return resumedActivity
     }
 }
