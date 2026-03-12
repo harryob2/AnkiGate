@@ -14,6 +14,10 @@ import androidx.core.content.ContextCompat
 
 object PermissionSetup {
 
+    // Test-only override to make permission-gated flows deterministic in local/CI tests.
+    @Volatile
+    var allGrantedOverrideForTests: Boolean? = null
+
     enum class Step {
         ANKI_DB,
         NOTIFICATIONS,
@@ -54,11 +58,13 @@ object PermissionSetup {
     fun isOverlayGranted(context: Context): Boolean =
         Settings.canDrawOverlays(context)
 
-    fun isAllGranted(context: Context): Boolean =
-        isAnkiDbGranted(context) &&
+    fun isAllGranted(context: Context): Boolean {
+        allGrantedOverrideForTests?.let { return it }
+        return isAnkiDbGranted(context) &&
             isNotificationsGranted(context) &&
             isUsageAccessGranted(context) &&
             isOverlayGranted(context)
+    }
 
     fun grantedCount(context: Context): Int {
         var count = 0

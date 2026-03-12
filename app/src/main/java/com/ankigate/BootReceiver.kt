@@ -8,8 +8,7 @@ class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (
             intent.action == Intent.ACTION_BOOT_COMPLETED &&
-            PermissionSetup.isAllGranted(context) &&
-            Prefs.isStatusNotificationEnabled(context)
+            MonitoringGate.evaluate(context).canStart
         ) {
             MonitorService.start(context)
         }

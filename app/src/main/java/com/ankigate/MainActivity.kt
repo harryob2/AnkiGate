@@ -40,16 +40,20 @@ class MainActivity : Activity() {
             if (MonitorService.isRunning) {
                 MonitorService.stop(this)
             } else {
-                if (!PermissionSetup.isAllGranted(this)) {
-                    startActivity(Intent(this, PermissionsWizardActivity::class.java))
-                } else if (!Prefs.isStatusNotificationEnabled(this)) {
-                    Toast.makeText(
-                        this,
-                        "Turn on persistent notification before starting monitoring.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                } else {
-                    MonitorService.start(this)
+                when (MonitoringGate.evaluate(this).blockReason) {
+                    MonitoringGate.BlockReason.MISSING_PERMISSIONS -> {
+                        startActivity(Intent(this, PermissionsWizardActivity::class.java))
+                    }
+                    MonitoringGate.BlockReason.STATUS_NOTIFICATION_DISABLED -> {
+                        Toast.makeText(
+                            this,
+                            "Turn on persistent notification before starting monitoring.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                    null -> {
+                        MonitorService.start(this)
+                    }
                 }
             }
             handler.postDelayed({ refreshStatus() }, 500)
@@ -72,7 +76,7 @@ class MainActivity : Activity() {
             startActivity(Intent(this, PermissionsWizardActivity::class.java))
         }
 
-        if (PermissionSetup.isAllGranted(this) && Prefs.isStatusNotificationEnabled(this)) {
+        if (MonitoringGate.evaluate(this).canStart) {
             MonitorService.start(this)
         }
     }
@@ -104,23 +108,29 @@ class MainActivity : Activity() {
             btnToggle.setBackgroundResource(R.drawable.bg_btn_accent)
         }
 
-        if (!PermissionSetup.isAllGranted(this)) {
-            tvDeck.text = "Required permissions are missing.\nAnkiGate will not work until they are approved.\nTap 'Permissions Setup'.\nIf blocked in Android settings, enable 'Allow restricted settings' for AnkiGate."
-        } else if (!Prefs.isStatusNotificationEnabled(this)) {
-            tvDeck.text = "Persistent status notification is OFF.\nMonitoring is paused because Android may stop background blocking.\nTurn it ON to keep blocking reliable."
-        } else if (selectedDecks.isEmpty()) {
-            tvDeck.text = "No decks selected.\nTap 'Select Decks' to choose which decks to monitor."
-        } else if (!AnkiChecker.hasAnkiPermission(this)) {
-            tvDeck.text = "AnkiDroid permission required.\nTap 'Select Decks' and allow database access."
-        } else if (!status.found) {
-            tvDeck.text = "Selected decks not found.\nMake sure AnkiDroid is installed and has been opened at least once."
-        } else if (status.isComplete) {
-            tvDeck.text = "All selected decks: COMPLETE\nAll apps are unlocked."
-        } else {
-            val deckList = selectedDecks.sorted().joinToString(", ")
-            tvDeck.text = "Decks ($deckList): ${status.totalDue} cards due\n" +
-                "(${status.newCount} new, ${status.reviewCount} review, ${status.learnCount} learning)\n" +
-                "Blocked apps are LOCKED."
+        when (MonitoringGate.evaluate(this).blockReason) {
+            MonitoringGate.BlockReason.MISSING_PERMISSIONS -> {
+                tvDeck.text = "Required permissions are missing.\nAnkiGate will not work until they are approved.\nTap 'Permissions Setup'.\nIf blocked in Android settings, enable 'Allow restricted settings' for AnkiGate."
+            }
+            MonitoringGate.BlockReason.STATUS_NOTIFICATION_DISABLED -> {
+                tvDeck.text = "Persistent status notification is OFF.\nMonitoring is paused because Android may stop background blocking.\nTurn it ON to keep blocking reliable."
+            }
+            null -> {
+                if (selectedDecks.isEmpty()) {
+                    tvDeck.text = "No decks selected.\nTap 'Select Decks' to choose which decks to monitor."
+                } else if (!AnkiChecker.hasAnkiPermission(this)) {
+                    tvDeck.text = "AnkiDroid permission required.\nTap 'Select Decks' and allow database access."
+                } else if (!status.found) {
+                    tvDeck.text = "Selected decks not found.\nMake sure AnkiDroid is installed and has been opened at least once."
+                } else if (status.isComplete) {
+                    tvDeck.text = "All selected decks: COMPLETE\nAll apps are unlocked."
+                } else {
+                    val deckList = selectedDecks.sorted().joinToString(", ")
+                    tvDeck.text = "Decks ($deckList): ${status.totalDue} cards due\n" +
+                        "(${status.newCount} new, ${status.reviewCount} review, ${status.learnCount} learning)\n" +
+                        "Blocked apps are LOCKED."
+                }
+            }
         }
 
         val blockedPackages = Prefs.getBlockedPackages(this)

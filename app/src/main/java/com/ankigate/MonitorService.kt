@@ -31,12 +31,9 @@ class MonitorService : Service() {
             private set
 
         fun start(context: Context) {
-            if (!PermissionSetup.isAllGranted(context)) {
-                Log.e(TAG, "Refusing to start monitor: required permissions missing")
-                return
-            }
-            if (!Prefs.isStatusNotificationEnabled(context)) {
-                Log.e(TAG, "Refusing to start monitor: persistent notification disabled")
+            val decision = MonitoringGate.evaluate(context)
+            if (!decision.canStart) {
+                Log.e(TAG, "Refusing to start monitor: ${decision.blockReason}")
                 return
             }
             val intent = Intent(context, MonitorService::class.java)
@@ -104,13 +101,9 @@ class MonitorService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        if (!PermissionSetup.isAllGranted(this)) {
-            Log.e(TAG, "Stopping monitor onCreate: required permissions missing")
-            stopSelf()
-            return
-        }
-        if (!Prefs.isStatusNotificationEnabled(this)) {
-            Log.e(TAG, "Stopping monitor onCreate: persistent notification disabled")
+        val createDecision = MonitoringGate.evaluate(this)
+        if (!createDecision.canStart) {
+            Log.e(TAG, "Stopping monitor onCreate: ${createDecision.blockReason}")
             stopSelf()
             return
         }
@@ -135,21 +128,18 @@ class MonitorService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_SYNC_NOTIFICATION_SETTING) {
-            if (!Prefs.isStatusNotificationEnabled(this)) {
-                Log.e(TAG, "Stopping monitor: persistent notification disabled")
+            val syncDecision = MonitoringGate.evaluate(this)
+            if (!syncDecision.canStart) {
+                Log.e(TAG, "Stopping monitor: ${syncDecision.blockReason}")
                 stopSelf()
                 return START_NOT_STICKY
             }
             applyNotificationSetting()
             return START_STICKY
         }
-        if (!PermissionSetup.isAllGranted(this)) {
-            Log.e(TAG, "Stopping monitor: required permissions missing")
-            stopSelf()
-            return START_NOT_STICKY
-        }
-        if (!Prefs.isStatusNotificationEnabled(this)) {
-            Log.e(TAG, "Stopping monitor: persistent notification disabled")
+        val startDecision = MonitoringGate.evaluate(this)
+        if (!startDecision.canStart) {
+            Log.e(TAG, "Stopping monitor: ${startDecision.blockReason}")
             stopSelf()
             return START_NOT_STICKY
         }

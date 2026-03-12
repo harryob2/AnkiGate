@@ -52,6 +52,23 @@ export ANDROID_HOME=~/Library/Android/sdk
 
 The APK is output to `app/build/outputs/apk/debug/app-debug.apk`.
 
+## Testing
+
+Run all local logic and Robolectric tests:
+
+```bash
+./gradlew testDebugUnitTest
+```
+
+Run instrumentation tests on a connected device or emulator:
+
+```bash
+./gradlew connectedDebugAndroidTest
+```
+
+Phone-free testing is fully supported by running `connectedDebugAndroidTest` against an Android emulator.
+The repository also runs this in GitHub Actions (`.github/workflows/test.yml`), and the beta release workflow now blocks publishing until all tests pass.
+
 ## Beta Release Automation
 
 Pushes to the `beta` branch trigger the GitHub Actions workflow at `.github/workflows/beta-release.yml`.
