@@ -8,6 +8,7 @@ import android.os.Looper
 import android.widget.Button
 import android.widget.Switch
 import android.widget.TextView
+import android.widget.Toast
 
 class MainActivity : Activity() {
 
@@ -39,7 +40,17 @@ class MainActivity : Activity() {
             if (MonitorService.isRunning) {
                 MonitorService.stop(this)
             } else {
-                MonitorService.start(this)
+                if (!PermissionSetup.isAllGranted(this)) {
+                    startActivity(Intent(this, PermissionsWizardActivity::class.java))
+                } else if (!Prefs.isStatusNotificationEnabled(this)) {
+                    Toast.makeText(
+                        this,
+                        "Turn on persistent notification before starting monitoring.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    MonitorService.start(this)
+                }
             }
             handler.postDelayed({ refreshStatus() }, 500)
         }
@@ -48,9 +59,12 @@ class MainActivity : Activity() {
         switchStatusNotification.isChecked = Prefs.isStatusNotificationEnabled(this)
         switchStatusNotification.setOnCheckedChangeListener { _, isChecked ->
             Prefs.setStatusNotificationEnabled(this, isChecked)
-            if (MonitorService.isRunning) {
+            if (!isChecked && MonitorService.isRunning) {
+                MonitorService.stop(this)
+            } else if (MonitorService.isRunning) {
                 MonitorService.syncNotificationSetting(this)
             }
+            refreshStatus()
         }
 
         if (!Prefs.hasSeenPermissionWizard(this) && !PermissionSetup.isAllGranted(this)) {
@@ -58,7 +72,9 @@ class MainActivity : Activity() {
             startActivity(Intent(this, PermissionsWizardActivity::class.java))
         }
 
-        MonitorService.start(this)
+        if (PermissionSetup.isAllGranted(this) && Prefs.isStatusNotificationEnabled(this)) {
+            MonitorService.start(this)
+        }
     }
 
     override fun onResume() {
@@ -90,6 +106,8 @@ class MainActivity : Activity() {
 
         if (!PermissionSetup.isAllGranted(this)) {
             tvDeck.text = "Required permissions are missing.\nAnkiGate will not work until they are approved.\nTap 'Permissions Setup'.\nIf blocked in Android settings, enable 'Allow restricted settings' for AnkiGate."
+        } else if (!Prefs.isStatusNotificationEnabled(this)) {
+            tvDeck.text = "Persistent status notification is OFF.\nMonitoring is paused because Android may stop background blocking.\nTurn it ON to keep blocking reliable."
         } else if (selectedDecks.isEmpty()) {
             tvDeck.text = "No decks selected.\nTap 'Select Decks' to choose which decks to monitor."
         } else if (!AnkiChecker.hasAnkiPermission(this)) {
